@@ -26,3 +26,8 @@ def check_guess(secret_word, guess):
                 result[i] = 'absent'
     
     return result
+
+def is_valid_word(word):
+    with open(settings.WORD_LIST_PATH, 'r') as f:
+        words = set(word.strip().upper() for word in f)
+    return word.upper() in words
