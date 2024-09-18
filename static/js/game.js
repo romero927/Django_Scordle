@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTile = 0;
     let isGameOver = false;
     let timerInterval;
+    let score = 0;
 
     const gameBoard = document.getElementById('game-board');
     const keyboard = document.getElementById('keyboard');
@@ -10,11 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const newGameBtn = document.getElementById('new-game-btn');
     const timerDisplay = document.getElementById('timer');
     const scoreDisplay = document.getElementById('score');
-    let score = 0;
 
-    // Timer countdown logic
+    const modal = document.getElementById('stats-modal');
+    const closeModal = document.getElementById('close-modal');
+
     let totalTime = 5 * 60; // 5 minutes in seconds
 
+    // Timer countdown logic
     function startCountdown() {
         timerInterval = setInterval(() => {
             let minutes = Math.floor(totalTime / 60);
@@ -26,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (totalTime <= 0) {
                 clearInterval(timerInterval);
                 isGameOver = true;
-                endGame("Time's up! The word was " + secret_word);
+                endGame("Time's up! The word was " + secret_word, false);
             }
 
             totalTime--;
@@ -34,21 +37,115 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Function to handle game over scenario
-    function endGame(message) {
+    function endGame(message, won = false) {
         isGameOver = true;
         showMessage(message);
         clearInterval(timerInterval);
+
+        let gameResult = {
+            result: won ? 'win' : 'loss',
+            time: 5 * 60 - totalTime, // Time spent in seconds
+            guesses: currentRow + 1,
+            score: score,
+            date: new Date().toISOString()
+        };
+
+        storeGameResult(gameResult);
     }
 
-    // Add this at the start of the game
-    startCountdown();
+    // Store the game result in cookies
+    function storeGameResult(gameResult) {
+        let gameHistory = JSON.parse(getCookie('gameHistory') || '[]');
+        gameHistory.push(gameResult);
 
-    function getCurrentGuess() {
-        return Array.from(gameBoard.children[currentRow].children)
-            .map(tile => tile.textContent)
-            .join('');
+        document.cookie = `gameHistory=${JSON.stringify(gameHistory)}; path=/; max-age=31536000`; // Store for 1 year
     }
 
+// Function to display stats in a table format
+function displayStats() {
+    let gameHistory = JSON.parse(getCookie('gameHistory') || '[]');
+
+    // Sort by the most recent game (descending by date)
+    gameHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    let winCount = 0, lossCount = 0;
+    let tableHtml = `
+        <table class="stats-table">
+            <thead>
+                <tr>
+                    <th>Result</th>
+                    <th>Time (s)</th>
+                    <th>Guesses</th>
+                    <th>Score</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    gameHistory.forEach(game => {
+        if (game.result === 'win') winCount++;
+        else lossCount++;
+
+        tableHtml += `
+            <tr>
+                <td>${game.result === 'win' ? 'Win' : 'Loss'}</td>
+                <td>${game.time}</td>
+                <td>${game.guesses}</td>
+                <td>${game.score}</td>
+                <td>${new Date(game.date).toLocaleDateString()} ${new Date(game.date).toLocaleTimeString()}</td>
+            </tr>
+        `;
+    });
+
+    tableHtml += `
+            </tbody>
+        </table>
+        <p>Total Wins: ${winCount}</p>
+        <p>Total Losses: ${lossCount}</p>
+    `;
+
+    document.getElementById('stats-container').innerHTML = tableHtml;
+}
+
+    // Fetch the cookie value by name
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Open modal
+    document.getElementById('stats-button').addEventListener('click', () => {
+        displayStats();
+        modal.style.display = 'block';
+    });
+
+    // Close modal when user clicks on <span> (x)
+    closeModal.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    // Close modal if the user clicks outside of the modal
+    window.addEventListener('click', (event) => {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+     // Prevent the modal from being shown on page load
+     modal.style.display = 'none'; // Ensure the modal is hidden on page load
+
+    // Function to handle key press
     function handleKeyPress(key) {
         if (isGameOver) return;
 
@@ -72,6 +169,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Get the current guess
+    function getCurrentGuess() {
+        return Array.from(gameBoard.children[currentRow].children)
+            .map(tile => tile.textContent)
+            .join('');
+    }
+
+    // Submit the guess
     function submitGuess() {
         const guess = getCurrentGuess();
 
@@ -95,14 +200,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Update score logic
             updateScore(data.result);
-
             updateRow(data.result);
             updateKeyboard(guess, data.result);
 
             if (data.game_over) {
-                endGame(data.secret_word === guess ? "Congratulations! You guessed the word!" : `Game over! The word was ${data.secret_word}`);
+                endGame(data.secret_word === guess ? "Congratulations! You guessed the word!" : `Game over! The word was ${data.secret_word}`, data.secret_word === guess);
             } else {
                 currentRow++;
                 currentTile = 0;
@@ -114,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // New scoring logic based on guess result
+    // Update score logic
     function updateScore(result) {
         let roundScore = 0;
         for (let i = 0; i < result.length; i++) {
@@ -128,6 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scoreDisplay.textContent = `Score: ${score}`;
     }
 
+    // Update the current row with the guess result
     function updateRow(result) {
         const row = gameBoard.children[currentRow];
         for (let i = 0; i < 5; i++) {
@@ -141,6 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Update keyboard color based on the guess
     function updateKeyboard(guess, result) {
         for (let i = 0; i < 5; i++) {
             const key = keyboard.querySelector(`button[data-key="${guess[i]}"]`);
@@ -155,11 +260,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Show message on the screen
     function showMessage(message) {
         messageArea.textContent = message;
         messageArea.setAttribute('aria-label', message);
     }
 
+    // Start a new game
     function startNewGame() {
         fetch('/new_game/', {
             method: 'POST',
@@ -175,6 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Reset the game board for a new game
     function resetGame() {
         currentRow = 0;
         currentTile = 0;
@@ -200,6 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Add keyboard and button event listeners
     keyboard.addEventListener('click', (e) => {
         const target = e.target;
         if (target.tagName === 'BUTTON') {
@@ -226,20 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     newGameBtn.addEventListener('click', startNewGame);
 
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    startNewGame();
+    // Start countdown and new game on page load
+    startCountdown();
+    startNewGame(); // Start a new game on page load
 });

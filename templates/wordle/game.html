@@ -4,10 +4,12 @@
 <div class="game-wrapper">
     <header>
         <h1>Wurdle</h1>
-        <div id="timer">05:00</div> <!-- Timer Display -->
-        <div id="score">Score: 0</div> <!-- Score Display -->
+        <div id="timer">05:00</div>
+        <div id="score">Score: 0</div>
         <button id="new-game-btn">New Game</button>
+        <button id="stats-button">View Stats</button>
     </header>
+
     <main>
         <div id="message-area" aria-live="polite"></div>
         <div id="game-board">
@@ -56,5 +58,14 @@
             </div>
         </div>
     </main>
+</div>
+
+<!-- Modal for Stats -->
+<div id="stats-modal" class="modal">
+    <div class="modal-content">
+        <span id="close-modal" class="close">&times;</span>
+        <h2>Game Stats</h2>
+        <div id="stats-container"></div>
+    </div>
 </div>
 {% endblock %}
