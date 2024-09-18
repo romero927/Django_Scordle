@@ -84,4 +84,5 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Wordle-specific settings
-WORD_LIST_PATH = BASE_DIR / 'wordle' / 'word_list.txt'
+VALID_WORD_LIST_PATH = BASE_DIR / 'wordle' / 'valid_word_list.txt'
+ANSWER_WORD_LIST_PATH = BASE_DIR / 'wordle' / 'answer_word_list.txt'

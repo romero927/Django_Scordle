@@ -2,7 +2,7 @@ import random
 from django.conf import settings
 
 def get_random_word():
-    with open(settings.WORD_LIST_PATH, 'r') as f:
+    with open(settings.ANSWER_WORD_LIST_PATH, 'r') as f:
         words = f.read().splitlines()
     return random.choice(words).upper()
 
@@ -28,6 +28,6 @@ def check_guess(secret_word, guess):
     return result
 
 def is_valid_word(word):
-    with open(settings.WORD_LIST_PATH, 'r') as f:
+    with open(settings.VALID_WORD_LIST_PATH, 'r') as f:
         words = set(word.strip().upper() for word in f)
     return word.upper() in words
