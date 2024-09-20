@@ -2,7 +2,7 @@
 
 This project is a Django-based clone of the popular word-guessing game Wordle.
 
-Available to test at: [https://kgromero-wurdle.fly.dev/](https://kgromero-wurdle.fly.dev/)
+Available to test at: [https://kgromero-hurdle.fly.dev/](https://kgromero-hurdle.fly.dev/)
 
 ## Features
 
