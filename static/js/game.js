@@ -186,7 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                showMessage(data.error);
+                if (data.error === 'No active game. Please start a new game.') {
+                    initGame();
+                } else {
+                    showMessage(data.error);
+                }
                 return;
             }
 
@@ -258,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageArea.setAttribute('aria-label', message);
     }
 
-    function startNewGame() {
+    function initGame() {
         fetch('/new_game/', {
             method: 'POST',
             headers: {
@@ -269,7 +273,13 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             if (data.success) {
                 resetGame();
+            } else {
+                showMessage('Failed to start a new game. Please try again.');
             }
+        })
+        .catch(error => {
+            console.error('Error starting new game:', error);
+            showMessage('An error occurred. Please try again.');
         });
     }
 
@@ -322,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    newGameBtn.addEventListener('click', startNewGame);
+    newGameBtn.addEventListener('click', initGame);
 
     scoringRulesBtn.addEventListener('click', () => {
         scoringRulesModal.style.display = 'block';
@@ -338,6 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    startCountdown();
-    startNewGame();
+    // Start a new game when the page loads
+    initGame();
 });
