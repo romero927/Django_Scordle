@@ -3,69 +3,87 @@
 {% block content %}
 <div class="game-wrapper">
     <header>
-        <h1>Wurdle</h1>
+        <h1>Hurdle</h1>
         <div id="timer">05:00</div>
         <div id="score">Score: 0</div>
-        <button id="new-game-btn">New Game</button>
-        <button id="stats-button">View Stats</button>
     </header>
-
-    <main>
-        <div id="message-area" aria-live="polite"></div>
-        <div id="game-board">
-            {% for i in '123456'|make_list %}
-            <div class="word-row">
-                {% for j in '12345'|make_list %}
-                <div class="letter-box"></div>
-                {% endfor %}
-            </div>
+    <div class="button-container">
+        <button id="new-game-btn">New Game</button>
+        <button id="stats-button">Stats</button>
+        <button id="scoring-rules-btn">Rules</button>
+    </div>
+    <div id="game-board">
+        {% for _ in '123456' %}
+        <div class="word-row">
+            {% for _ in '12345' %}
+            <div class="letter-box"></div>
             {% endfor %}
         </div>
-        <div id="keyboard">
-            <div class="keyboard-row">
-                <button class="key" data-key="Q">Q</button>
-                <button class="key" data-key="W">W</button>
-                <button class="key" data-key="E">E</button>
-                <button class="key" data-key="R">R</button>
-                <button class="key" data-key="T">T</button>
-                <button class="key" data-key="Y">Y</button>
-                <button class="key" data-key="U">U</button>
-                <button class="key" data-key="I">I</button>
-                <button class="key" data-key="O">O</button>
-                <button class="key" data-key="P">P</button>
-            </div>
-            <div class="keyboard-row">
-                <button class="key" data-key="A">A</button>
-                <button class="key" data-key="S">S</button>
-                <button class="key" data-key="D">D</button>
-                <button class="key" data-key="F">F</button>
-                <button class="key" data-key="G">G</button>
-                <button class="key" data-key="H">H</button>
-                <button class="key" data-key="J">J</button>
-                <button class="key" data-key="K">K</button>
-                <button class="key" data-key="L">L</button>
-            </div>
-            <div class="keyboard-row">
-                <button class="key" data-key="Enter" id="enter">Enter</button>
-                <button class="key" data-key="Z">Z</button>
-                <button class="key" data-key="X">X</button>
-                <button class="key" data-key="C">C</button>
-                <button class="key" data-key="V">V</button>
-                <button class="key" data-key="B">B</button>
-                <button class="key" data-key="N">N</button>
-                <button class="key" data-key="M">M</button>
-                <button class="key" data-key="Backspace" id="backspace">⌫</button>
-            </div>
+        {% endfor %}
+    </div>
+    <div id="message-area" aria-live="polite"></div>
+    <div id="keyboard">
+        <div class="keyboard-row">
+            <button class="key" data-key="Q">q</button>
+            <button class="key" data-key="W">w</button>
+            <button class="key" data-key="E">e</button>
+            <button class="key" data-key="R">r</button>
+            <button class="key" data-key="T">t</button>
+            <button class="key" data-key="Y">y</button>
+            <button class="key" data-key="U">u</button>
+            <button class="key" data-key="I">i</button>
+            <button class="key" data-key="O">o</button>
+            <button class="key" data-key="P">p</button>
         </div>
-    </main>
+        <div class="keyboard-row">
+            <button class="key" data-key="A">a</button>
+            <button class="key" data-key="S">s</button>
+            <button class="key" data-key="D">d</button>
+            <button class="key" data-key="F">f</button>
+            <button class="key" data-key="G">g</button>
+            <button class="key" data-key="H">h</button>
+            <button class="key" data-key="J">j</button>
+            <button class="key" data-key="K">k</button>
+            <button class="key" data-key="L">l</button>
+        </div>
+        <div class="keyboard-row">
+            <button class="key" data-key="Enter">enter</button>
+            <button class="key" data-key="Z">z</button>
+            <button class="key" data-key="X">x</button>
+            <button class="key" data-key="C">c</button>
+            <button class="key" data-key="V">v</button>
+            <button class="key" data-key="B">b</button>
+            <button class="key" data-key="N">n</button>
+            <button class="key" data-key="M">m</button>
+            <button class="key" data-key="Backspace">back</button>
+        </div>
+    </div>
 </div>
 
-<!-- Modal for Stats -->
 <div id="stats-modal" class="modal">
     <div class="modal-content">
-        <span id="close-modal" class="close">&times;</span>
-        <h2>Game Stats</h2>
+        <span class="close" id="close-modal">&times;</span>
+        <h2>Game Statistics</h2>
         <div id="stats-container"></div>
+    </div>
+</div>
+
+<div id="scoring-rules-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="close-scoring-rules-modal">&times;</span>
+        <h2>Scoring Rules</h2>
+        <div id="scoring-rules-content">
+            <p>Scoring in Wurdle is based on the following rules:</p>
+            <ul>
+                <li>Correct letter in correct position: (6 - current row) * 10 points</li>
+                <li>Correct letter in wrong position: 5 points</li>
+                <li>Incorrect letter: 0 points</li>
+                <li>Time bonus: Up to 300 points for solving quickly</li>
+            </ul>
+            <p>The earlier you guess correctly and the faster you solve, the more points you earn!</p>
+            <p>The time bonus is calculated as: max(300 - seconds_elapsed, 0)</p>
+            <p>So, solving within 1 minute gives you the full 300 point bonus, and the bonus decreases linearly until it reaches 0 at 5 minutes.</p>
+        </div>
     </div>
 </div>
 {% endblock %}

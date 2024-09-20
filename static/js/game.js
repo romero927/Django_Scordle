@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isGameOver = false;
     let timerInterval;
     let score = 0;
+    let secret_word;
 
     const gameBoard = document.getElementById('game-board');
     const keyboard = document.getElementById('keyboard');
@@ -15,9 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('stats-modal');
     const closeModal = document.getElementById('close-modal');
 
+    const scoringRulesBtn = document.getElementById('scoring-rules-btn');
+    const scoringRulesModal = document.getElementById('scoring-rules-modal');
+    const closeScoringRulesModal = document.getElementById('close-scoring-rules-modal');
+
     let totalTime = 5 * 60; // 5 minutes in seconds
 
-    // Timer countdown logic
     function startCountdown() {
         timerInterval = setInterval(() => {
             let minutes = Math.floor(totalTime / 60);
@@ -36,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    // Function to handle game over scenario
     function endGame(message, won = false) {
         isGameOver = true;
         showMessage(message);
@@ -44,71 +47,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let gameResult = {
             result: won ? 'win' : 'loss',
-            time: 5 * 60 - totalTime, // Time spent in seconds
+            time: 5 * 60 - totalTime,
             guesses: currentRow + 1,
             score: score,
-            date: new Date().toISOString()
+            date: new Date().toISOString(),
+            correctWord: secret_word
         };
 
         storeGameResult(gameResult);
     }
 
-    // Store the game result in cookies
     function storeGameResult(gameResult) {
         let gameHistory = JSON.parse(getCookie('gameHistory') || '[]');
         gameHistory.push(gameResult);
 
-        document.cookie = `gameHistory=${JSON.stringify(gameHistory)}; path=/; max-age=31536000`; // Store for 1 year
+        document.cookie = `gameHistory=${JSON.stringify(gameHistory)}; path=/; max-age=31536000`;
     }
 
-// Function to display stats in a table format
-function displayStats() {
-    let gameHistory = JSON.parse(getCookie('gameHistory') || '[]');
+    function displayStats() {
+        let gameHistory = JSON.parse(getCookie('gameHistory') || '[]');
 
-    // Sort by the most recent game (descending by date)
-    gameHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+        gameHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    let winCount = 0, lossCount = 0;
-    let tableHtml = `
-        <table class="stats-table">
-            <thead>
+        let winCount = 0, lossCount = 0;
+        let tableHtml = `
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Result</th>
+                        <th>Time (s)</th>
+                        <th>Guesses</th>
+                        <th>Score</th>
+                        <th>Correct Word</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        gameHistory.forEach(game => {
+            if (game.result === 'win') winCount++;
+            else lossCount++;
+
+            tableHtml += `
                 <tr>
-                    <th>Result</th>
-                    <th>Time (s)</th>
-                    <th>Guesses</th>
-                    <th>Score</th>
-                    <th>Date</th>
+                    <td>${game.result === 'win' ? 'Win' : 'Loss'}</td>
+                    <td>${game.time}</td>
+                    <td>${game.guesses}</td>
+                    <td>${game.score}</td>
+                    <td>${game.correctWord}</td>
+                    <td>${new Date(game.date).toLocaleDateString()} ${new Date(game.date).toLocaleTimeString()}</td>
                 </tr>
-            </thead>
-            <tbody>
-    `;
-
-    gameHistory.forEach(game => {
-        if (game.result === 'win') winCount++;
-        else lossCount++;
+            `;
+        });
 
         tableHtml += `
-            <tr>
-                <td>${game.result === 'win' ? 'Win' : 'Loss'}</td>
-                <td>${game.time}</td>
-                <td>${game.guesses}</td>
-                <td>${game.score}</td>
-                <td>${new Date(game.date).toLocaleDateString()} ${new Date(game.date).toLocaleTimeString()}</td>
-            </tr>
+                </tbody>
+            </table>
+            <p>Total Wins: ${winCount}</p>
+            <p>Total Losses: ${lossCount}</p>
         `;
-    });
 
-    tableHtml += `
-            </tbody>
-        </table>
-        <p>Total Wins: ${winCount}</p>
-        <p>Total Losses: ${lossCount}</p>
-    `;
+        document.getElementById('stats-container').innerHTML = tableHtml;
+    }
 
-    document.getElementById('stats-container').innerHTML = tableHtml;
-}
-
-    // Fetch the cookie value by name
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -124,28 +126,23 @@ function displayStats() {
         return cookieValue;
     }
 
-    // Open modal
     document.getElementById('stats-button').addEventListener('click', () => {
         displayStats();
         modal.style.display = 'block';
     });
 
-    // Close modal when user clicks on <span> (x)
     closeModal.addEventListener('click', () => {
         modal.style.display = 'none';
     });
 
-    // Close modal if the user clicks outside of the modal
     window.addEventListener('click', (event) => {
         if (event.target == modal) {
             modal.style.display = 'none';
         }
     });
 
-     // Prevent the modal from being shown on page load
-     modal.style.display = 'none'; // Ensure the modal is hidden on page load
+    modal.style.display = 'none';
 
-    // Function to handle key press
     function handleKeyPress(key) {
         if (isGameOver) return;
 
@@ -169,14 +166,12 @@ function displayStats() {
         }
     }
 
-    // Get the current guess
     function getCurrentGuess() {
         return Array.from(gameBoard.children[currentRow].children)
             .map(tile => tile.textContent)
             .join('');
     }
 
-    // Submit the guess
     function submitGuess() {
         const guess = getCurrentGuess();
 
@@ -200,12 +195,21 @@ function displayStats() {
                 return;
             }
 
-            updateScore(data.result);
+            updateScore(data.score);
             updateRow(data.result);
             updateKeyboard(guess, data.result);
 
             if (data.game_over) {
-                endGame(data.secret_word === guess ? "Congratulations! You guessed the word!" : `Game over! The word was ${data.secret_word}`, data.secret_word === guess);
+                secret_word = data.secret_word;
+                let message = data.secret_word === guess ? 
+                    `Congratulations! You guessed the word!` : 
+                    `Game over! The word was ${data.secret_word}`;
+                
+                if (data.time_bonus > 0) {
+                    message += ` Time bonus: ${data.time_bonus} points!`;
+                }
+                
+                endGame(message, data.secret_word === guess);
             } else {
                 currentRow++;
                 currentTile = 0;
@@ -217,21 +221,11 @@ function displayStats() {
         });
     }
 
-    // Update score logic
-    function updateScore(result) {
-        let roundScore = 0;
-        for (let i = 0; i < result.length; i++) {
-            if (result[i] === 'correct') {
-                roundScore += (6 - currentRow) * 10;  // Higher score for early correct guesses
-            } else if (result[i] === 'present') {
-                roundScore += 5;  // Partial credit for present letters
-            }
-        }
-        score += roundScore;
+    function updateScore(newScore) {
+        score = newScore;
         scoreDisplay.textContent = `Score: ${score}`;
     }
 
-    // Update the current row with the guess result
     function updateRow(result) {
         const row = gameBoard.children[currentRow];
         for (let i = 0; i < 5; i++) {
@@ -245,7 +239,6 @@ function displayStats() {
         }
     }
 
-    // Update keyboard color based on the guess
     function updateKeyboard(guess, result) {
         for (let i = 0; i < 5; i++) {
             const key = keyboard.querySelector(`button[data-key="${guess[i]}"]`);
@@ -260,13 +253,11 @@ function displayStats() {
         }
     }
 
-    // Show message on the screen
     function showMessage(message) {
         messageArea.textContent = message;
         messageArea.setAttribute('aria-label', message);
     }
 
-    // Start a new game
     function startNewGame() {
         fetch('/new_game/', {
             method: 'POST',
@@ -282,17 +273,16 @@ function displayStats() {
         });
     }
 
-    // Reset the game board for a new game
     function resetGame() {
         currentRow = 0;
         currentTile = 0;
         isGameOver = false;
         score = 0;
-        totalTime = 5 * 60; // Reset timer
+        totalTime = 5 * 60;
         messageArea.textContent = '';
         messageArea.setAttribute('aria-label', '');
-        timerDisplay.textContent = "05:00"; // Reset timer display
-        scoreDisplay.textContent = "Score: 0"; // Reset score display
+        timerDisplay.textContent = "05:00";
+        scoreDisplay.textContent = "Score: 0";
         clearInterval(timerInterval);
         startCountdown();
 
@@ -308,7 +298,6 @@ function displayStats() {
         });
     }
 
-    // Add keyboard and button event listeners
     keyboard.addEventListener('click', (e) => {
         const target = e.target;
         if (target.tagName === 'BUTTON') {
@@ -335,7 +324,20 @@ function displayStats() {
 
     newGameBtn.addEventListener('click', startNewGame);
 
-    // Start countdown and new game on page load
+    scoringRulesBtn.addEventListener('click', () => {
+        scoringRulesModal.style.display = 'block';
+    });
+
+    closeScoringRulesModal.addEventListener('click', () => {
+        scoringRulesModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target == scoringRulesModal) {
+            scoringRulesModal.style.display = 'none';
+        }
+    });
+
     startCountdown();
-    startNewGame(); // Start a new game on page load
+    startNewGame();
 });
