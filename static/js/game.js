@@ -64,6 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayStats() {
+        // Scroll the stats container to the top when opened
+        document.getElementById('stats-container').scrollTop = 0;
+
         let gameHistory = JSON.parse(getCookie('gameHistory') || '[]');
     
         gameHistory.sort((a, b) => new Date(b.date) - new Date(a.date));

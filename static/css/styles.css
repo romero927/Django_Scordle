@@ -277,27 +277,35 @@ h1 {
     left: 0;
     width: 100dvw;
     height: 100dvh;
-    overflow-y: auto;
     background-color: rgba(0, 0, 0, 0.6);
+    overflow-y: auto;
 }
 
 .modal-content {
     background-color: #fff;
     border-radius: 10px;
     padding: 20px;
-    text-align: center;
     max-width: 500px;
     width: 90%;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
     animation: slide-in 0.3s ease-out;
     margin: 20px auto;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-content h2 {
     margin-bottom: 20px;
     font-size: 1.5rem;
     color: #333;
+}
+
+#stats-container {
+    overflow-y: auto;
+    max-height: calc(90vh - 100px);
+    padding-right: 10px;
 }
 
 #stats-container p, #scoring-rules-content p {
@@ -334,29 +342,34 @@ h1 {
     }
 }
 
-@media (max-width: 768px) {
-    .modal-content {
-        width: 95%;
-        max-width: none;
-        margin: 10px auto;
-        padding: 15px;
-    }
+.stats-summary {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 1;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
 
-    #stats-button, #scoring-rules-btn {
-        font-size: 0.9rem;
-    }
+.stats-table-container {
+    overflow-x: auto;
 }
 
 .stats-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     margin: 20px 0;
     font-size: 1rem;
     text-align: center;
 }
 
 .stats-table thead {
-    background-color: #f0f0f0;
+    position: sticky;
+    top: 0;
+    background-color: #6aaa64;
+    z-index: 1;
 }
 
 .stats-table th, .stats-table td {
@@ -398,24 +411,6 @@ h1 {
     margin-bottom: 10px;
 }
 
-@media (max-width: 500px) {
-    .stats-table {
-        font-size: 0.8rem;
-    }
-
-    .stats-table th, .stats-table td {
-        padding: 5px;
-    }
-}
-
-/* Styles for improved stats layout */
-.stats-summary {
-    background-color: #f0f0f0;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
 .stats-row {
     display: flex;
     justify-content: space-between;
@@ -447,23 +442,12 @@ h3 {
     color: #333;
 }
 
-@media (max-width: 600px) {
-    .stats-row {
-        flex-direction: column;
-    }
-
-    .stat-item {
-        margin-bottom: 10px;
-    }
-}
-
-/* Styles for highlighting best and worst games */
 .stats-table .best-game {
-    background-color: rgba(106, 170, 100, 0.2);  /* Light green */
+    background-color: rgba(106, 170, 100, 0.2);
 }
 
 .stats-table .worst-game {
-    background-color: rgba(220, 20, 60, 0.2);  /* Light crimson */
+    background-color: rgba(220, 20, 60, 0.2);
 }
 
 .stats-table .best-game td,
@@ -481,13 +465,47 @@ h3 {
 }
 
 .stats-table .best-game::after {
-    background-color: #6aaa64;  /* Green */
+    background-color: #6aaa64;
 }
 
 .stats-table .worst-game::after {
-    background-color: #dc143c;  /* Crimson */
+    background-color: #dc143c;
 }
 
 .stats-table tr {
     position: relative;
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 10px auto;
+        padding: 15px;
+    }
+
+    #stats-container {
+        max-height: calc(90vh - 80px);
+    }
+
+    #stats-button, #scoring-rules-btn {
+        font-size: 0.9rem;
+    }
+
+    .stats-row {
+        flex-direction: column;
+    }
+
+    .stat-item {
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 500px) {
+    .stats-table {
+        font-size: 0.8rem;
+    }
+
+    .stats-table th, .stats-table td {
+        padding: 5px;
+    }
 }
