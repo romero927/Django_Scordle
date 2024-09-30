@@ -384,6 +384,39 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.overflow = ''; // Re-enable body scrolling
     }
 
+    document.getElementById('scoring-rules-btn').addEventListener('click', openRulesModal);
+    document.querySelector('#scoring-rules-modal .close').addEventListener('click', closeRulesModal);
+    window.addEventListener('click', (event) => {
+        const modal = document.getElementById('scoring-rules-modal');
+        if (event.target === modal) {
+            closeRulesModal();
+        }
+    });
+
+    function openRulesModal() {
+        const modal = document.getElementById('scoring-rules-modal');
+        const modalContent = modal.querySelector('.modal-content');
+        
+        modal.style.display = 'block';
+        
+        // Adjust modal for mobile
+        if (window.innerWidth <= 600) {
+            modalContent.style.height = '100%';
+            modalContent.style.margin = '0';
+            document.body.style.overflow = 'hidden'; // Prevent body scrolling
+        } else {
+            modalContent.style.height = '';
+            modalContent.style.margin = '20px auto';
+            document.body.style.overflow = '';
+        }
+    }
+    
+    function closeRulesModal() {
+        const modal = document.getElementById('scoring-rules-modal');
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; // Re-enable body scrolling
+    }
+
     keyboard.addEventListener('click', (e) => {
         const target = e.target;
         if (target.tagName === 'BUTTON') {
