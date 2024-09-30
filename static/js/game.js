@@ -43,16 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
         isGameOver = true;
         showMessage(message);
         clearInterval(timerInterval);
-
+    
         let gameResult = {
             result: won ? 'win' : 'loss',
             time: 5 * 60 - totalTime,
-            guesses: currentRow + 1,
+            guesses: won ? currentRow + 1 : 0,  // Changed this line
             score: score,
             date: new Date().toISOString(),
             correctWord: secret_word
         };
-
+    
         storeGameResult(gameResult);
     }
 
