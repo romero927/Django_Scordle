@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let gameResult = {
             result: won ? 'win' : 'loss',
             time: 5 * 60 - totalTime,
-            guesses: won ? currentRow + 1 : 0,
+            guesses: currentRow != 0 ? currentRow + 1 : 0,
             score: score,
             date: new Date().toISOString(),
             correctWord: secret_word
@@ -242,6 +242,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!data.valid_word) {
                 showMessage('Not in word list');
                 return;
+            }
+            else
+            {
+                showMessage('');
             }
 
             updateScore(data.score);
