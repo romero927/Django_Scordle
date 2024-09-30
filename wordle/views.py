@@ -29,14 +29,19 @@ def make_guess(request):
         elapsed_time = (timezone.now() - timezone.datetime.fromisoformat(start_time)).total_seconds()
         time_bonus = max(300 - int(elapsed_time), 0)  # Max 300 points for solving within 5 minutes
 
+        # Calculate score based on current guess
+        guess_number = len(request.session.get('guesses', [])) + 1
         for i in range(5):
             if result[i] == 'correct':
-                score += (6 - len(request.session.get('guesses', []))) * 10
+                score += (7 - guess_number) * 20  # More points for earlier correct guesses
             elif result[i] == 'present':
-                score += 5
+                score += (7 - guess_number) * 5   # More points for earlier present guesses
 
+        # Add win bonus if the word is guessed correctly
+        win_bonus = 0
         if game_over and guess == secret_word:
-            score += time_bonus
+            win_bonus = (6 - guess_number) * 100  # More bonus for earlier wins
+            score += win_bonus + time_bonus
 
         request.session['score'] = score
         request.session['guesses'] = request.session.get('guesses', []) + [{'word': guess, 'result': result}]
@@ -45,10 +50,11 @@ def make_guess(request):
         return JsonResponse({
             'result': result,
             'game_over': game_over,
-            'secret_word': secret_word,
+            'secret_word': secret_word if game_over else None,
             'valid_word': True,
             'score': score,
-            'time_bonus': time_bonus if game_over and guess == secret_word else 0
+            'time_bonus': time_bonus if game_over and guess == secret_word else 0,
+            'win_bonus': win_bonus
         })
 
 def new_game(request):

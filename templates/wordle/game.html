@@ -75,12 +75,21 @@
         <div id="scoring-rules-content">
             <p>Scoring in Scordle is based on the following rules:</p>
             <ul>
-                <li>Correct letter in correct position: (6 - current row) * 10 points</li>
-                <li>Correct letter in wrong position: 5 points</li>
-                <li>Incorrect letter: 0 points</li>
+                <li>Correct letter in correct position: (7 - current guess number) * 20 points</li>
+                <li>Correct letter in wrong position: (7 - current guess number) * 5 points</li>
+                <li>Win bonus: (6 - number of guesses) * 100 points</li>
                 <li>Time bonus: Up to 300 points for solving quickly</li>
             </ul>
             <p>The earlier you guess correctly and the faster you solve, the more points you earn!</p>
+            <p>Win bonus examples:</p>
+            <ul>
+                <li>Guess correct on 1st try: 500 points</li>
+                <li>Guess correct on 2nd try: 400 points</li>
+                <li>Guess correct on 3rd try: 300 points</li>
+                <li>Guess correct on 4th try: 200 points</li>
+                <li>Guess correct on 5th try: 100 points</li>
+                <li>Guess correct on 6th try: 0 points (but you still win!)</li>
+            </ul>
             <p>The time bonus is calculated as: max(300 - seconds_elapsed, 0)</p>
             <p>So, solving within 1 minute gives you the full 300 point bonus, and the bonus decreases linearly until it reaches 0 at 5 minutes.</p>
         </div>

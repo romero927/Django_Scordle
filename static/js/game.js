@@ -258,6 +258,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     `Congratulations! You guessed the word!` : 
                     `Game over! The word was ${data.secret_word}`;
                 
+                if (data.win_bonus > 0) {
+                    message += ` Win bonus: ${data.win_bonus} points!`;
+                }
                 if (data.time_bonus > 0) {
                     message += ` Time bonus: ${data.time_bonus} points!`;
                 }
