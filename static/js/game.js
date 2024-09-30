@@ -90,9 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayStats() {
-        // Scroll the stats container to the top when opened
         document.getElementById('stats-container').scrollTop = 0;
-
+    
         let gameHistory = JSON.parse(getCookie('gameHistory') || '[]');
     
         gameHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -104,13 +103,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (game.result === 'win') {
                 winCount++;
                 totalGuesses += game.guesses;
-                if (!bestGame || game.score > bestGame.score) bestGame = game;
-                if (!worstGame || game.score < worstGame.score) worstGame = game;
             } else {
                 lossCount++;
             }
             totalScore += game.score;
             totalTime += game.time;
+    
+            if (!bestGame || game.score > bestGame.score || (game.score === bestGame.score && game.time < bestGame.time)) {
+                bestGame = game;
+            }
+            if (!worstGame || game.score < worstGame.score || (game.score === worstGame.score && game.time > worstGame.time)) {
+                worstGame = game;
+            }
         });
     
         let tableHtml = `
@@ -129,7 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     
         gameHistory.forEach(game => {
-            const rowClass = game === bestGame ? 'best-game' : (game === worstGame ? 'worst-game' : '');
+            let rowClass = '';
+            if (game === bestGame) rowClass = 'best-game';
+            else if (game === worstGame) rowClass = 'worst-game';
+    
             tableHtml += `
                 <tr class="${rowClass}">
                     <td>${game.result === 'win' ? 'Win' : 'Loss'}</td>
@@ -191,7 +198,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
             <h3>Game History</h3>
-            ${tableHtml}
+            <div class="stats-table-container">
+                ${tableHtml}
+            </div>
         `;
     
         document.getElementById('stats-container').innerHTML = statsHtml;
