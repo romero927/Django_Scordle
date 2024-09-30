@@ -65,10 +65,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function displayStats() {
         let gameHistory = JSON.parse(getCookie('gameHistory') || '[]');
-
+    
         gameHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        let winCount = 0, lossCount = 0;
+    
+        let winCount = 0, lossCount = 0, totalScore = 0, totalTime = 0, totalGuesses = 0;
+        let bestGame = null, worstGame = null;
+    
+        gameHistory.forEach(game => {
+            if (game.result === 'win') {
+                winCount++;
+                totalGuesses += game.guesses;
+                if (!bestGame || game.score > bestGame.score) bestGame = game;
+                if (!worstGame || game.score < worstGame.score) worstGame = game;
+            } else {
+                lossCount++;
+            }
+            totalScore += game.score;
+            totalTime += game.time;
+        });
+    
         let tableHtml = `
             <table class="stats-table">
                 <thead>
@@ -83,13 +98,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 </thead>
                 <tbody>
         `;
-
+    
         gameHistory.forEach(game => {
-            if (game.result === 'win') winCount++;
-            else lossCount++;
-
+            const rowClass = game === bestGame ? 'best-game' : (game === worstGame ? 'worst-game' : '');
             tableHtml += `
-                <tr>
+                <tr class="${rowClass}">
                     <td>${game.result === 'win' ? 'Win' : 'Loss'}</td>
                     <td>${game.time}</td>
                     <td>${game.guesses}</td>
@@ -99,15 +112,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 </tr>
             `;
         });
-
+    
         tableHtml += `
                 </tbody>
             </table>
-            <p>Total Wins: ${winCount}</p>
-            <p>Total Losses: ${lossCount}</p>
         `;
-
-        document.getElementById('stats-container').innerHTML = tableHtml;
+    
+        const totalGames = winCount + lossCount;
+        const averageScore = totalGames > 0 ? Math.round(totalScore / totalGames) : 0;
+        const winLossRatio = totalGames > 0 ? (winCount / totalGames).toFixed(2) : 'N/A';
+        const averageTime = totalGames > 0 ? Math.round(totalTime / totalGames) : 0;
+        const averageGuesses = winCount > 0 ? (totalGuesses / winCount).toFixed(1) : 'N/A';
+    
+        const statsHtml = `
+            <div class="stats-summary">
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Games</span>
+                        <span class="stat-value">${totalGames}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Wins</span>
+                        <span class="stat-value">${winCount}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Losses</span>
+                        <span class="stat-value">${lossCount}</span>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-label">Win Rate</span>
+                        <span class="stat-value">${winLossRatio}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Avg Score</span>
+                        <span class="stat-value">${averageScore}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Avg Time</span>
+                        <span class="stat-value">${averageTime}s</span>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-label">Avg Guesses</span>
+                        <span class="stat-value">${averageGuesses}</span>
+                    </div>
+                </div>
+            </div>
+            <h3>Game History</h3>
+            ${tableHtml}
+        `;
+    
+        document.getElementById('stats-container').innerHTML = statsHtml;
     }
 
     function getCookie(name) {
