@@ -1,8 +1,8 @@
-# Hurdle
+# Scordle
 
 This project is a Django-based clone of the popular word-guessing game Wordle.
 
-Available to test at: [https://kgromero-hurdle.fly.dev/](https://kgromero-hurdle.fly.dev/)
+Available to test at: [https://kgromero-Scordle.fly.dev/](https://kgromero-Scordle.fly.dev/)
 
 ## Features
 

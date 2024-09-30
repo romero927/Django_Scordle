@@ -10,7 +10,7 @@ SECRET_KEY = 'django-insecure-your-secret-key-here'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False  # Set to False for production
 
-ALLOWED_HOSTS = ['kgromero-Hurdle.fly.dev', '127.0.0.1', 'localhost']  # Replace with your Fly.io app's domain
+ALLOWED_HOSTS = ['kgromero-Scordle.fly.dev', '127.0.0.1', 'localhost']  # Replace with your Fly.io app's domain
 
 # Application definition
 INSTALLED_APPS = [
