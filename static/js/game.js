@@ -63,6 +63,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.cookie = `gameHistory=${JSON.stringify(gameHistory)}; path=/; max-age=31536000`;
     }
 
+    function openStatsModal() {
+        const modal = document.getElementById('stats-modal');
+        const modalContent = modal.querySelector('.modal-content');
+        modal.style.display = 'block';
+        
+        // Adjust modal for mobile
+        if (window.innerWidth <= 600) {
+            modalContent.style.height = '100%';
+            modalContent.style.margin = '0';
+            modalContent.style.borderRadius = '0';
+            modalContent.style.width = '100%';
+        } else {
+            // Reset styles for larger screens
+            modalContent.style.height = '';
+            modalContent.style.margin = '20px auto';
+            modalContent.style.borderRadius = '10px';
+            modalContent.style.width = '90%';
+        }
+
+        // Scroll the stats container to the top when opened
+        document.getElementById('stats-container').scrollTop = 0;
+
+        // Call displayStats to populate the modal
+        displayStats();
+    }
+
     function displayStats() {
         // Scroll the stats container to the top when opened
         document.getElementById('stats-container').scrollTop = 0;
@@ -187,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.getElementById('stats-button').addEventListener('click', () => {
-        displayStats();
+        openStatsModal();
         modal.style.display = 'block';
     });
 

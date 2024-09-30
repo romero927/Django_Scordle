@@ -193,82 +193,6 @@ h1 {
     animation: flip 0.5s ease;
 }
 
-@media (max-width: 500px) {
-    body {
-        padding: 0;
-        min-height: 100dvh;
-        max-height: 100dvh;
-        overflow: hidden;
-    }
-
-    .game-wrapper {
-        padding: 10px;
-        height: 100dvh;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        border-radius: 0;
-        box-shadow: none;
-    }
-
-    header {
-        margin-bottom: 5px;
-    }
-
-    h1 {
-        font-size: 1.5rem;
-    }
-
-    .button-container {
-        margin-bottom: 5px;
-    }
-
-    #game-board {
-        margin-bottom: 5px;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        max-width: 90dvw;
-    }
-
-    .letter-box {
-        font-size: 1.2rem;
-    }
-
-    #keyboard {
-        margin-top: 5px;
-    }
-
-    .key {
-        font-size: 0.8rem;
-        height: 40px;
-        min-width: 20px;
-    }
-
-    #enter, #backspace {
-        font-size: 0.6rem;
-    }
-
-    #new-game-btn, #stats-button, #scoring-rules-btn {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-    }
-
-    #message-area {
-        font-size: 0.8rem;
-        height: auto;
-        min-height: 20px;
-        margin: 5px 0;
-    }
-}
-
-@supports (padding: max(0px)) {
-    body {
-        padding-bottom: max(70px, env(safe-area-inset-bottom));
-    }
-}
-
 .modal {
     display: none;
     position: fixed;
@@ -476,36 +400,139 @@ h3 {
     position: relative;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
+    body {
+        padding: 0;
+        min-height: 100dvh;
+        max-height: 100dvh;
+        overflow: hidden;
+    }
+
+    .game-wrapper {
+        padding: 10px;
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    header {
+        margin-bottom: 5px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .button-container {
+        margin-bottom: 5px;
+    }
+
+    #game-board {
+        margin-bottom: 5px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .letter-box {
+        font-size: 1.2rem;
+    }
+
+    #keyboard {
+        margin-top: 5px;
+    }
+
+    .key {
+        font-size: 0.8rem;
+        height: 40px;
+        min-width: 20px;
+    }
+
+    #enter, #backspace {
+        font-size: 0.6rem;
+    }
+
+    #new-game-btn, #stats-button, #scoring-rules-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+
+    #message-area {
+        font-size: 0.8rem;
+        height: auto;
+        min-height: 20px;
+        margin: 5px 0;
+    }
+
     .modal-content {
         width: 95%;
+        padding: 10px;
         margin: 10px auto;
-        padding: 15px;
     }
 
     #stats-container {
-        max-height: calc(90vh - 80px);
+        padding-right: 5px;
     }
 
-    #stats-button, #scoring-rules-btn {
-        font-size: 0.9rem;
+    .stats-summary {
+        padding-bottom: 5px;
+        margin-bottom: 5px;
     }
 
     .stats-row {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
     }
 
     .stat-item {
+        width: 48%;
+        margin-bottom: 10px;
+    }
+
+    .stat-label {
+        font-size: 0.8em;
+    }
+
+    .stat-value {
+        font-size: 1em;
+    }
+
+    .stats-table {
+        font-size: 0.7rem;
+    }
+
+    .stats-table th, .stats-table td {
+        padding: 4px 2px;
+    }
+
+    .stats-table th {
+        white-space: nowrap;
+    }
+
+    h3 {
+        font-size: 1.2em;
+        margin-top: 15px;
         margin-bottom: 10px;
     }
 }
 
-@media (max-width: 500px) {
-    .stats-table {
-        font-size: 0.8rem;
+@media (max-width: 350px) {
+    .stat-item {
+        width: 100%;
     }
 
-    .stats-table th, .stats-table td {
-        padding: 5px;
+    .stats-table {
+        font-size: 0.6rem;
+    }
+}
+
+@supports (padding: max(0px)) {
+    body {
+        padding-bottom: max(70px, env(safe-area-inset-bottom));
     }
 }
