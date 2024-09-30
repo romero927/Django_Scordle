@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval;
     let score = 0;
     let secret_word;
+    let totalTime = 5 * 60; // 5 minutes in seconds
 
     const gameBoard = document.getElementById('game-board');
     const keyboard = document.getElementById('keyboard');
@@ -19,8 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const scoringRulesBtn = document.getElementById('scoring-rules-btn');
     const scoringRulesModal = document.getElementById('scoring-rules-modal');
     const closeScoringRulesModal = document.getElementById('close-scoring-rules-modal');
-
-    let totalTime = 5 * 60; // 5 minutes in seconds
 
     function startCountdown() {
         timerInterval = setInterval(() => {
@@ -272,6 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                secret_word = data.secret_word; // Store the secret word
                 resetGame();
             } else {
                 showMessage('Failed to start a new game. Please try again.');

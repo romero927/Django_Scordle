@@ -53,8 +53,9 @@ def make_guess(request):
 
 def new_game(request):
     if request.method == 'POST':
-        request.session['secret_word'] = get_random_word()
+        secret_word = get_random_word()
+        request.session['secret_word'] = secret_word
         request.session['guesses'] = []
         request.session['score'] = 0
         request.session['start_time'] = timezone.now().isoformat()
-        return JsonResponse({'success': True})
+        return JsonResponse({'success': True, 'secret_word': secret_word})
