@@ -1,6 +1,6 @@
 # Scordle
 
-This project is a Django-based clone of the popular word-guessing game Wordle.
+This project is a Django-based word-guessing game with timer and score.
 
 Available to test at: [https://kgromero-Scordle.fly.dev/](https://kgromero-Scordle.fly.dev/)
 
@@ -23,8 +23,8 @@ Available to test at: [https://kgromero-Scordle.fly.dev/](https://kgromero-Scord
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/wordle-clone.git
-   cd wordle-clone
+   git clone https://github.com/romero927/Django_Scordle.git
+   cd django-scordle
    ```
 
 2. Create a virtual environment and activate it:
@@ -59,12 +59,12 @@ Available to test at: [https://kgromero-Scordle.fly.dev/](https://kgromero-Scord
 
 1. Build the Docker image:
    ```
-   docker build -t wordle-clone .
+   docker build -t django-scordle .
    ```
 
 2. Run the Docker container:
    ```
-   docker run -p 8000:8000 wordle-clone
+   docker run -p 8000:8000 django-scordle
    ```
 
 3. Open your browser and navigate to `http://localhost:8000` to play the game.
@@ -73,7 +73,7 @@ Available to test at: [https://kgromero-Scordle.fly.dev/](https://kgromero-Scord
 
 - To modify the word list, edit the `WORD_LIST_PATH` in `settings.py` to point to your custom word list file.
 - Adjust the game logic in `utils.py` and `views.py` to change game rules or behavior.
-- Modify the frontend appearance by editing `static/css/styles.css` and the templates in the `templates/wordle/` directory.
+- Modify the frontend appearance by editing `static/css/styles.css` and the templates in the `templates/scordle/` directory.
 
 ## Contributing
 
