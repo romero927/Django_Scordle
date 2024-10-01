@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function endGame(message, won = false) {
         isGameOver = true;
-        showMessage(message);
+        showMessage(message, won ? 'success' : 'error');
         clearInterval(timerInterval);
     
         let gameResult = {
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentGuess.length === 5) {
                 submitGuess();
             } else {
-                showMessage('Not enough letters');
+                showMessage('Not enough letters', 'error');
             }
         } else if (key === 'Backspace') {
             if (currentTile > 0) {
@@ -234,17 +234,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.error === 'No active game. Please start a new game.') {
                     initGame();
                 } else {
-                    showMessage(data.error);
+                    showMessage(data.error, 'error');
                 }
                 return;
             }
 
             if (!data.valid_word) {
-                showMessage('Not in word list');
+                showMessage('Not in word list', 'error');
                 return;
             }
-            else
-            {
+            else {
                 showMessage('');
             }
 
@@ -273,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             console.error('Error:', error);
-            showMessage('An error occurred. Please try again.');
+            showMessage('An error occurred. Please try again.', 'error');
         });
     }
 
@@ -309,8 +308,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function showMessage(message) {
+    function showMessage(message, type = '') {
         messageArea.textContent = message;
+        messageArea.className = type; // 'error', 'success', or '' for default
         messageArea.setAttribute('aria-label', message);
     }
 
@@ -327,12 +327,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 secret_word = data.secret_word; // Store the secret word
                 resetGame();
             } else {
-                showMessage('Failed to start a new game. Please try again.');
+                showMessage('Failed to start a new game. Please try again.', 'error');
             }
         })
         .catch(error => {
             console.error('Error starting new game:', error);
-            showMessage('An error occurred. Please try again.');
+            showMessage('An error occurred. Please try again.', 'error');
         });
     }
 
@@ -342,8 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isGameOver = false;
         score = 0;
         totalTime = 5 * 60;
-        messageArea.textContent = '';
-        messageArea.setAttribute('aria-label', '');
+        showMessage('');
         timerDisplay.textContent = "5:00";
         scoreDisplay.textContent = "Score: 0";
         clearInterval(timerInterval);
