@@ -20,7 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'wordle',
+    'scordle',
 ]
 
 MIDDLEWARE = [
@@ -34,7 +34,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'wordle_clone.urls'
+ROOT_URLCONF = 'scordle_clone.urls'
 
 TEMPLATES = [
     {
@@ -52,7 +52,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'wordle_clone.wsgi.application'
+WSGI_APPLICATION = 'scordle_clone.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -83,6 +83,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Wordle-specific settings
-VALID_WORD_LIST_PATH = BASE_DIR / 'wordle' / 'valid_word_list.txt'
-ANSWER_WORD_LIST_PATH = BASE_DIR / 'wordle' / 'answer_word_list.txt'
+# scordle-specific settings
+VALID_WORD_LIST_PATH = BASE_DIR / 'scordle' / 'valid_word_list.txt'
+ANSWER_WORD_LIST_PATH = BASE_DIR / 'scordle' / 'answer_word_list.txt'

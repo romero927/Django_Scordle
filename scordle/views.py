@@ -4,7 +4,7 @@ from .utils import get_random_word, check_guess, is_valid_word
 from django.utils import timezone
 
 def game(request):
-    return render(request, 'wordle/game.html')
+    return render(request, 'scordle/game.html')
 
 def make_guess(request):
     if request.method == 'POST':

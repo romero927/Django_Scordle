@@ -30,4 +30,4 @@ RUN python manage.py migrate
 EXPOSE 8000
 
 # Start the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "wordle_clone.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "scordle_clone.wsgi:application"]
