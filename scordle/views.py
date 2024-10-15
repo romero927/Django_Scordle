@@ -10,13 +10,13 @@ def make_guess(request):
         score = request.session.get('score', 0)
         start_time = request.session.get('start_time')
         found_letters = request.session.get('found_letters', {'correct': [], 'present': []})
-        
+
         if not secret_word or not start_time:
             return JsonResponse({'error': 'No active game. Please start a new game.'})
-        
+
         if len(guess) != 5:
             return JsonResponse({'error': 'Guess must be 5 letters long'})
-        
+
         if not is_valid_word(guess):
             return JsonResponse({'error': 'Not in word list', 'valid_word': False})
 
@@ -29,13 +29,18 @@ def make_guess(request):
 
         # Calculate score based on current guess
         guess_number = len(request.session.get('guesses', [])) + 1
+        guess_score = 0
         for i in range(5):
             if result[i] == 'correct' and guess[i] not in found_letters['correct']:
-                score += (7 - guess_number) * 20  # Points only for new correct letters
+                guess_score += (7 - guess_number) * 20  # Points only for new correct letters
                 found_letters['correct'].append(guess[i])
             elif result[i] == 'present' and guess[i] not in found_letters['present'] and guess[i] not in found_letters['correct']:
-                score += (7 - guess_number) * 5   # Points only for new present letters
+                guess_score += (7 - guess_number) * 5   # Points only for new present letters
                 found_letters['present'].append(guess[i])
+
+        # Only add the guess_score if it's not zero (i.e., the guess wasn't completely wrong)
+        if guess_score > 0:
+            score += guess_score
 
         # Add win bonus if the word is guessed correctly
         win_bonus = 0
@@ -47,7 +52,7 @@ def make_guess(request):
         request.session['found_letters'] = found_letters
         request.session['guesses'] = request.session.get('guesses', []) + [{'word': guess, 'result': result}]
         request.session.modified = True
-        
+
         return JsonResponse({
             'result': result,
             'game_over': game_over,
@@ -70,3 +75,10 @@ def new_game(request):
 
 def game(request):
     return render(request, 'scordle/game.html')
+
+def get_timeout_word(request):
+    secret_word = request.session.get('secret_word')
+    if secret_word:
+        return JsonResponse({'secret_word': secret_word})
+    else:
+        return JsonResponse({'error': 'No active game'})

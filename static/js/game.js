@@ -25,13 +25,35 @@ document.addEventListener('DOMContentLoaded', () => {
             if (totalTime <= 0) {
                 clearInterval(timerInterval);
                 isGameOver = true;
-                endGame("Time's up! The word was " + secret_word, false);
+                getTimeoutWord();
             }
 
             totalTime--;
         }, 1000);
     }
 
+    function getTimeoutWord() {
+        fetch('/get_timeout_word/', {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.secret_word) {
+                secret_word = data.secret_word; // Store the secret word
+                endGame(`Time's up! The word was ${data.secret_word}`, false);
+            } else {
+                endGame("Time's up! Unable to retrieve the word.", false);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            endGame("Time's up! An error occurred while retrieving the word.", false);
+        });
+    }
+    
     function endGame(message, won = false) {
         isGameOver = true;
         showMessage(message, won ? 'success' : 'error');
@@ -40,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let gameResult = {
             result: won ? 'win' : 'loss',
             time: 5 * 60 - totalTime,
-            guesses: currentRow != 0 ? currentRow + 1 : 0,
+            guesses: currentRow != 0 ? currentRow : 0, // Changed from currentRow + 1 to just currentRow
             score: score,
             date: new Date().toISOString(),
             correctWord: secret_word
@@ -242,8 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!data.valid_word) {
                 showMessage('Not in word list', 'error');
                 return;
-            }
-            else {
+            } else {
                 showMessage('');
             }
 
@@ -254,16 +275,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.game_over) {
                 secret_word = data.secret_word;
                 let message = data.secret_word === guess ? 
-                    `Congratulations! You guessed the word!` : 
+                    `Congratulations! You guessed the word!` :
                     `Game over! The word was ${data.secret_word}`;
-                
+
                 if (data.win_bonus > 0) {
                     message += ` Win bonus: ${data.win_bonus} points!`;
                 }
                 if (data.time_bonus > 0) {
                     message += ` Time bonus: ${data.time_bonus} points!`;
                 }
-                
+
                 endGame(message, data.secret_word === guess);
             } else {
                 currentRow++;
@@ -324,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                secret_word = data.secret_word; // Store the secret word
+                // We don't receive the secret word here anymore
                 resetGame();
             } else {
                 showMessage('Failed to start a new game. Please try again.', 'error');
@@ -364,9 +385,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById('stats-modal');
         const modalContent = modal.querySelector('.modal-content');
         const statsContainer = document.getElementById('stats-container');
-        
+
         modal.style.display = 'block';
-        
+
         // Reset scroll position
         statsContainer.scrollTop = 0;
 
@@ -402,9 +423,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function openRulesModal() {
         const modal = document.getElementById('scoring-rules-modal');
         const modalContent = modal.querySelector('.modal-content');
-        
+
         modal.style.display = 'block';
-        
+
         // Adjust modal for mobile
         if (window.innerWidth <= 600) {
             modalContent.style.height = '100%';
@@ -416,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.style.overflow = '';
         }
     }
-    
+
     function closeRulesModal() {
         const modal = document.getElementById('scoring-rules-modal');
         modal.style.display = 'none';
