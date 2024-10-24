@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     let secret_word;
     let totalTime = 5 * 60; // 5 minutes in seconds
+    let isSubmitting = false;
+    let submissionCooldown = 500; // 500ms cooldown between submissions
 
     const gameBoard = document.getElementById('game-board');
     const keyboard = document.getElementById('keyboard');
@@ -42,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             if (data.secret_word) {
-                secret_word = data.secret_word; // Store the secret word
+                secret_word = data.secret_word;
                 endGame(`Time's up! The word was ${data.secret_word}`, false);
             } else {
                 endGame("Time's up! Unable to retrieve the word.", false);
@@ -53,28 +55,27 @@ document.addEventListener('DOMContentLoaded', () => {
             endGame("Time's up! An error occurred while retrieving the word.", false);
         });
     }
-    
+
     function endGame(message, won = false) {
         isGameOver = true;
         showMessage(message, won ? 'success' : 'error');
         clearInterval(timerInterval);
-    
+
         let gameResult = {
             result: won ? 'win' : 'loss',
             time: 5 * 60 - totalTime,
-            guesses: currentRow != 0 ? currentRow : 0, // Changed from currentRow + 1 to just currentRow
+            guesses: currentRow != 0 ? currentRow : 0,
             score: score,
             date: new Date().toISOString(),
             correctWord: secret_word
         };
-    
+
         storeGameResult(gameResult);
     }
 
     function storeGameResult(gameResult) {
         let gameHistory = JSON.parse(getCookie('gameHistory') || '[]');
         gameHistory.push(gameResult);
-
         document.cookie = `gameHistory=${JSON.stringify(gameHistory)}; path=/; max-age=31536000`;
     }
 
@@ -82,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('stats-container').scrollTop = 0;
 
         let gameHistory = JSON.parse(getCookie('gameHistory') || '[]');
-
         gameHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         let winCount = 0, lossCount = 0, totalScore = 0, totalTime = 0, totalGuesses = 0;
@@ -210,37 +210,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return cookieValue;
     }
 
-    function handleKeyPress(key) {
-        if (isGameOver) return;
-
-        if (key === 'Enter') {
-            const currentGuess = getCurrentGuess();
-            if (currentGuess.length === 5) {
-                submitGuess();
-            } else {
-                showMessage('Not enough letters', 'error');
-            }
-        } else if (key === 'Backspace') {
-            if (currentTile > 0) {
-                currentTile--;
-                const tile = gameBoard.children[currentRow].children[currentTile];
-                tile.textContent = '';
-            }
-        } else if (/^[A-Z]$/.test(key) && currentTile < 5) {
-            const tile = gameBoard.children[currentRow].children[currentTile];
-            tile.textContent = key;
-            currentTile++;
-        }
-    }
-
-    function getCurrentGuess() {
-        return Array.from(gameBoard.children[currentRow].children)
-            .map(tile => tile.textContent)
-            .join('');
-    }
-
     function submitGuess() {
         const guess = getCurrentGuess();
+        
+        // If already submitting or not enough letters, return early
+        if (isSubmitting || guess.length !== 5) {
+            return;
+        }
+
+        isSubmitting = true;
 
         fetch('/make_guess/', {
             method: 'POST',
@@ -294,7 +272,42 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => {
             console.error('Error:', error);
             showMessage('An error occurred. Please try again.', 'error');
+        })
+        .finally(() => {
+            // Set a timeout before allowing the next submission
+            setTimeout(() => {
+                isSubmitting = false;
+            }, submissionCooldown);
         });
+    }
+
+    function handleKeyPress(key) {
+        if (isGameOver) return;
+
+        if (key === 'Enter') {
+            const currentGuess = getCurrentGuess();
+            if (currentGuess.length === 5) {
+                submitGuess();
+            } else {
+                showMessage('Not enough letters', 'error');
+            }
+        } else if (key === 'Backspace') {
+            if (currentTile > 0) {
+                currentTile--;
+                const tile = gameBoard.children[currentRow].children[currentTile];
+                tile.textContent = '';
+            }
+        } else if (/^[A-Z]$/.test(key) && currentTile < 5) {
+            const tile = gameBoard.children[currentRow].children[currentTile];
+            tile.textContent = key;
+            currentTile++;
+        }
+    }
+
+    function getCurrentGuess() {
+        return Array.from(gameBoard.children[currentRow].children)
+            .map(tile => tile.textContent)
+            .join('');
     }
 
     function updateScore(newScore) {
@@ -331,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showMessage(message, type = '') {
         messageArea.textContent = message;
-        messageArea.className = type; // 'error', 'success', or '' for default
+        messageArea.className = type;
         messageArea.setAttribute('aria-label', message);
     }
 
@@ -345,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // We don't receive the secret word here anymore
                 resetGame();
             } else {
                 showMessage('Failed to start a new game. Please try again.', 'error');
@@ -387,15 +399,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const statsContainer = document.getElementById('stats-container');
 
         modal.style.display = 'block';
-
-        // Reset scroll position
         statsContainer.scrollTop = 0;
 
-        // Adjust modal for mobile
         if (window.innerWidth <= 600) {
             modalContent.style.height = '100%';
             modalContent.style.margin = '0';
-            document.body.style.overflow = 'hidden'; // Prevent body scrolling
+            document.body.style.overflow = 'hidden';
         } else {
             modalContent.style.height = '';
             modalContent.style.margin = '20px auto';
@@ -408,17 +417,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeStatsModal() {
         const modal = document.getElementById('stats-modal');
         modal.style.display = 'none';
-        document.body.style.overflow = ''; // Re-enable body scrolling
+        document.body.style.overflow = '';
     }
-
-    document.getElementById('scoring-rules-btn').addEventListener('click', openRulesModal);
-    document.querySelector('#scoring-rules-modal .close').addEventListener('click', closeRulesModal);
-    window.addEventListener('click', (event) => {
-        const modal = document.getElementById('scoring-rules-modal');
-        if (event.target === modal) {
-            closeRulesModal();
-        }
-    });
 
     function openRulesModal() {
         const modal = document.getElementById('scoring-rules-modal');
@@ -426,11 +426,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         modal.style.display = 'block';
 
-        // Adjust modal for mobile
         if (window.innerWidth <= 600) {
             modalContent.style.height = '100%';
             modalContent.style.margin = '0';
-            document.body.style.overflow = 'hidden'; // Prevent body scrolling
+            document.body.style.overflow = 'hidden';
         } else {
             modalContent.style.height = '';
             modalContent.style.margin = '20px auto';
@@ -441,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeRulesModal() {
         const modal = document.getElementById('scoring-rules-modal');
         modal.style.display = 'none';
-        document.body.style.overflow = ''; // Re-enable body scrolling
+        document.body.style.overflow = '';
     }
 
     keyboard.addEventListener('click', (e) => {
@@ -470,7 +469,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     newGameBtn.addEventListener('click', initGame);
 
-    // Update event listeners
+    document.getElementById('scoring-rules-btn').addEventListener('click', openRulesModal);
+    document.querySelector('#scoring-rules-modal .close').addEventListener('click', closeRulesModal);
+    window.addEventListener('click', (event) => {
+        const modal = document.getElementById('scoring-rules-modal');
+        if (event.target === modal) {
+            closeRulesModal();
+        }
+    });
+
     document.getElementById('stats-button').addEventListener('click', openStatsModal);
     document.querySelector('.close').addEventListener('click', closeStatsModal);
     window.addEventListener('click', (event) => {
@@ -480,10 +487,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Add resize listener to handle orientation changes
     window.addEventListener('resize', () => {
         if (document.getElementById('stats-modal').style.display === 'block') {
-            openStatsModal(); // Re-adjust modal
+            openStatsModal();
         }
     });
 
